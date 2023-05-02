@@ -157,21 +157,21 @@ $fetch_class_res = $fetch_class->get_result();
       <li class="nav-item">
         <a class="nav-link collapsed" href="class.php">
           <i class="bi bi-question-circle"></i>
-          <span>Manage Class</span>
+          <span>Class</span>
         </a>
       </li><!-- End F.A.Q Page Nav -->
 
       <li class="nav-item">
         <a class="nav-link collapsed" href="student.php">
           <i class="bi bi-envelope"></i>
-          <span>Manage Student</span>
+          <span>Student</span>
         </a>
       </li><!-- End Contact Page Nav -->
 
       <li class="nav-item">
         <a class="nav-link collapsed" href="timetable.php">
           <i class="bi bi-card-list"></i>
-          <span>Manage Timetable</span>
+          <span>Timetable</span>
         </a>
       </li><!-- End Register Page Nav -->
 

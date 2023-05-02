@@ -1,64 +1,48 @@
 <?php
     include_once "connect.php";
-    $reg_success = 0;
-    $card_exist = 0;
+    $student_update = 0;
 
 //if any login cookie, check here
 
 //any form submit logicSS
-    if(isset($_POST['register_student']))
+if(isset($_GET['student_update_id']))
+{
+    $id = $_GET['student_update_id'];
+    
+    //fetch all student and their resp class_name to pre-populate
+    $fetch_student = $conn->prepare("SELECT student.*, classroom.class_name FROM student JOIN classroom ON student.class_id = classroom.class_id WHERE student.id=(?)");
+    $fetch_student->bind_param('i', $id);
+    $fetch_student->execute();
+    $fetch_student_res = $fetch_student->get_result();
+    $fetch_student_row = $fetch_student_res->fetch_assoc();
+
+    // Fetch all classes for dropdown
+    $fetch_classes = $conn->prepare("SELECT * FROM classroom");
+    $fetch_classes->execute();
+    $fetch_classes_res = $fetch_classes->get_result();
+
+
+    if(isset($_POST['update_Student_btn']))
     {  
         $student_id = $_POST['student_id'];                    
         $student_name = $_POST['student_name'];                    
         $class_id = $_POST['class_id'];       
         
-        //check if card already assigned to a student
-        $check_card_exist = $conn->prepare("SELECT * FROM student WHERE student_id=(?)");
-        $check_card_exist->bind_param('s',$student_id);
-        $check_card_exist->execute();
-        $card_exist_res = $check_card_exist->get_result();
-        $card_exist_row = $card_exist_res->fetch_assoc();
-        if($card_exist_row)
-        {
-            $card_exist = 1;
-        }
-        else
-        {
-            $student_insert = $conn->prepare("INSERT INTO student (student_id,student_name,class_id) VALUES (?,?,?)");
-            $student_insert->bind_param('ssi',$student_id,$student_name,$class_id);
+            // $student_insert = $conn->prepare("INSERT INTO student (student_id,student_name,class_id) VALUES (?,?,?)");
+            $student_insert = $conn->prepare("UPDATE student SET student_id =(?),student_name =(?),class_id =(?)  WHERE id =(?)");
+            $student_insert->bind_param('ssii',$student_id,$student_name,$class_id,$id);
             if($student_insert->execute())
             {
-                ?><script>alert("New Student Registered.");window.location.href="student.php";</script><?php
+                ?><script>alert("Student Updated.");window.location.href="student.php";</script><?php
             }
             else{
                 ?><script>alert("Unexpected Error.");history.back();</script><?php
 
             }
 
-        }
     }
+}
 
-//select queries
-
-    //prepopulate student_card_uid from rfid_punch
-    $get_card_uid = $conn->prepare("SELECT * 
-                             FROM rfid_punch 
-                             WHERE DATE(entry_timestamp) = DATE(NOW()) 
-                             AND TIMESTAMPDIFF(SECOND, entry_timestamp, NOW()) <= 10"
-                            );
-    $get_card_uid->execute();
-    $get_card_uid_res = $get_card_uid->get_result();
-    $get_card_uid_row = $get_card_uid_res->fetch_assoc();                      
-
-    //pre-populate class
-    $fetch_class = $conn->prepare("SELECT * FROM classroom");
-    $fetch_class->execute();
-    $fetch_class_res = $fetch_class->get_result();
-
-    //fetch all student and their resp class_name
-    $fetch_student = $conn->prepare("SELECT student.*, classroom.class_name FROM student JOIN classroom ON student.class_id = classroom.class_id");
-    $fetch_student->execute();
-    $fetch_student_res = $fetch_student->get_result();
 ?>
 
 
@@ -190,21 +174,21 @@
           <i class="bi bi-question-circle"></i>
           <span>Class</span>
         </a>
-      </li><!-- End F.A.Q Page Nav -->
+      </li><!-- End Manage Class Page Nav -->
 
       <li class="nav-item">
         <a class="nav-link collapsed" href="student.php">
           <i class="bi bi-envelope"></i>
           <span>Student</span>
         </a>
-      </li><!-- End Contact Page Nav -->
+      </li><!-- End Manage Student Page Nav -->
 
       <li class="nav-item">
         <a class="nav-link collapsed" href="timetable.php">
           <i class="bi bi-card-list"></i>
           <span>Timetable</span>
         </a>
-      </li><!-- End Register Page Nav -->
+      </li><!-- End Manage Timetable Page Nav -->
 
       <li class="nav-item">
         <a class="nav-link collapsed" href="attendance.php">
@@ -220,7 +204,7 @@
 
   <main id="main" class="main">
   <?php
-if ($card_exist) {
+if ($student_update) {
     echo '<div class="alert alert-danger alert-dismissible fade show" role="alert">
     <strong>Student Exists !</strong> Card already assigned. Retry using a different Card.
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -245,18 +229,18 @@ if ($card_exist) {
 
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title">Register Student</h5>
+              <h5 class="card-title">Update Student</h5>
 
-              <!-- Add Students form -->
+              <!-- Update Students form -->
               <form method="post">
 
                 <div class="form-group">
                   <label for="student_id">Student Card UID:</label>
-                  <input type="text" class="form-control" id="student_id" aria-describedby="emailHelp" name="student_id" value="<?php echo isset($get_card_uid_row) ? $get_card_uid_row['rfid_data'] : "No Card Scanned"; ?>" required>
+                  <input type="text" class="form-control" id="student_id" aria-describedby="emailHelp" name="student_id" value="<?php echo $fetch_student_row['student_id']; ?>" required>
                 </div>
                 <div class="form-group my-3">
                   <label for="student_name">Student Name:</label>
-                  <input type="text" class="form-control" id="student_name" aria-describedby="emailHelp" placeholder="Enter Student name" name="student_name" required>
+                  <input type="text" class="form-control" id="student_name" aria-describedby="emailHelp" placeholder="Enter Student name" name="student_name" value="<?php echo $fetch_student_row['student_name']; ?>"required>
                 </div>
                 
                 <!-- Dropdown for Class Prepopulated -->
@@ -264,56 +248,21 @@ if ($card_exist) {
                   <label for="class_id">Select Class:</label>
                   <select class="form-control" id="class_id" name="class_id" required>
                       <?php
-                        while($fetch_class_row = $fetch_class_res->fetch_assoc())
-                        {
-                            echo "<option value='".$fetch_class_row['class_id']."'>".$fetch_class_row['class_name']."</option>";
+                        while ($fetch_class_row = $fetch_classes_res->fetch_assoc()) {
+                            $class_id = $fetch_class_row['class_id'];
+                            $class_name = $fetch_class_row['class_name'];
+
+                            $selected = ($class_id == $fetch_student_row['class_id']) ? 'selected' : '';
+
+                            echo "<option value='$class_id' $selected>$class_name</option>";
                         }
-                      ?>
+                    ?>
                   </select>
                 </div>
                 <div class="form-group my-2">
-                    <button type="submit" class="btn btn-primary" name="register_student">Register</button>
+                    <button type="submit" class="btn btn-primary" name="update_Student_btn">Update</button>
                 </div>
               </form>
-            </div>
-          </div>
-
-        </div>
-
-        <div class="col-lg-12">
-
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">All Students</h5>
-              <table class="table datatable">
-                <thead>
-                    <tr>
-                        <th scope="col">Name</th>
-                        <th scope="col">Card ID</th>
-                        <th scope="col">Class</th>
-                        <th scope="col">Operation</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <?php
-                    while($fetch_student_row  = $fetch_student_res->fetch_assoc())
-                    {
-                        echo "<tr>
-                                <td>".$fetch_student_row['student_name']."</td>
-                                <td>".$fetch_student_row['student_id']."</td>
-                                <td>".$fetch_student_row['class_name']."</td>
-                                <td>
-                                    <button class='btn btn-primary'><a href='student_update.php?student_update_id=".$fetch_student_row['id']."' class='text-light'>Update</a></button>
-
-                                    <button class='btn btn-danger'><a onClick=\" javascript:return confirm('Are You Sure to delete this'); \" href='student_delete.php?student_delete_id=".$fetch_student_row['id']."' class='text-light'>Delete</a></button>
-                                </td>
-                              </tr>";
-                        // echo $fetch_class_row['class_name'];
-                    }
-                    ?>
-
-                </tbody>
-              </table>
             </div>
           </div>
 

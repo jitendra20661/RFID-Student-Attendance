@@ -160,21 +160,21 @@ if(isset($_GET['class_update_id']))
       <li class="nav-item">
         <a class="nav-link collapsed" href="class.php">
           <i class="bi bi-question-circle"></i>
-          <span>Manage Class</span>
+          <span>Class</span>
         </a>
       </li><!-- End F.A.Q Page Nav -->
 
       <li class="nav-item">
         <a class="nav-link collapsed" href="index.html">
           <i class="bi bi-envelope"></i>
-          <span>Manage Student</span>
+          <span>Student</span>
         </a>
       </li><!-- End Contact Page Nav -->
 
       <li class="nav-item">
         <a class="nav-link collapsed" href="pages-register.html">
           <i class="bi bi-card-list"></i>
-          <span>Manage Timetable</span>
+          <span>Timetable</span>
         </a>
       </li><!-- End Register Page Nav -->
 
