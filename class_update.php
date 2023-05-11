@@ -40,7 +40,7 @@ if(isset($_GET['class_update_id']))
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>Components / Accordion - NiceAdmin Bootstrap Template</title>
+  <title>Student Attendance</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
 
@@ -165,6 +165,13 @@ if(isset($_GET['class_update_id']))
       </li><!-- End F.A.Q Page Nav -->
 
       <li class="nav-item">
+        <a class="nav-link collapsed" href="subject.php">
+          <i class="bi bi-question-circle"></i>
+          <span>Subject</span>
+        </a>
+      </li><!-- End Subject Page Nav -->
+
+      <li class="nav-item">
         <a class="nav-link collapsed" href="index.html">
           <i class="bi bi-envelope"></i>
           <span>Student</span>
@@ -179,7 +186,7 @@ if(isset($_GET['class_update_id']))
       </li><!-- End Register Page Nav -->
 
       <li class="nav-item">
-        <a class="nav-link collapsed" href="pages-login.html">
+        <a class="nav-link collapsed" href="#">
           <i class="bi bi-box-arrow-in-right"></i>
           <span>Attendance</span>
         </a>

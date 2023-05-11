@@ -1,48 +1,24 @@
 <?php
-    include_once "connect.php";
-    $student_update = 0;
+include 'connect.php';
+    if(isset($_GET['student_id']))
+    {
 
-//if any login cookie, check here
+        $student_id = $_GET['student_id']; 
+        $student_name = $_GET['student_name']; 
+        $class_id = $_GET['class_id']; 
+        $class_name = $_GET['class_name']; 
 
-//any form submit logicSS
-if(isset($_GET['student_update_id']))
-{
-    $id = $_GET['student_update_id'];
-    
-    //fetch all student and their resp class_name to pre-populate
-    $fetch_student = $conn->prepare("SELECT student.*, classroom.class_name FROM student JOIN classroom ON student.class_id = classroom.class_id WHERE student.id=(?)");
-    $fetch_student->bind_param('i', $id);
-    $fetch_student->execute();
-    $fetch_student_res = $fetch_student->get_result();
-    $fetch_student_row = $fetch_student_res->fetch_assoc();
-
-    // Fetch all classes for dropdown
-    $fetch_classes = $conn->prepare("SELECT * FROM classroom");
-    $fetch_classes->execute();
-    $fetch_classes_res = $fetch_classes->get_result();
-
-
-    if(isset($_POST['update_Student_btn']))
-    {  
-        $student_id = $_POST['student_id'];                    
-        $student_name = $_POST['student_name'];                    
-        $class_id = $_POST['class_id'];       
+        $sub = $conn->prepare("SELECT sub_id FROM subject WHERE class_id = ?");
+        $sub->bind_param('i', $class_id);
+        $sub->execute();
+        $res = $sub->get_result();
         
-            // $student_insert = $conn->prepare("INSERT INTO student (student_id,student_name,class_id) VALUES (?,?,?)");
-            $student_insert = $conn->prepare("UPDATE student SET student_id =(?),student_name =(?),class_id =(?)  WHERE id =(?)");
-            $student_insert->bind_param('ssii',$student_id,$student_name,$class_id,$id);
-            if($student_insert->execute())
-            {
-                ?><script>alert("Student Updated.");window.location.href="student.php";</script><?php
-            }
-            else{
-                ?><script>alert("Unexpected Error.");history.back();</script><?php
-
-            }
-
+        $subjects = array(); // Initialize an empty array
+        
+        while ($row = $res->fetch_assoc()) {
+            $subjects[] = $row['sub_id']; // Append each subject to the array
+        }
     }
-}
-
 ?>
 
 
@@ -174,7 +150,7 @@ if(isset($_GET['student_update_id']))
           <i class="bi bi-question-circle"></i>
           <span>Class</span>
         </a>
-      </li><!-- End Manage Class Page Nav -->
+      </li><!-- End F.A.Q Page Nav -->
 
       <li class="nav-item">
         <a class="nav-link collapsed" href="subject.php">
@@ -188,14 +164,14 @@ if(isset($_GET['student_update_id']))
           <i class="bi bi-envelope"></i>
           <span>Student</span>
         </a>
-      </li><!-- End Manage Student Page Nav -->
+      </li><!-- End Contact Page Nav -->
 
       <li class="nav-item">
         <a class="nav-link collapsed" href="timetable.php">
           <i class="bi bi-card-list"></i>
           <span>Timetable</span>
         </a>
-      </li><!-- End Manage Timetable Page Nav -->
+      </li><!-- End Register Page Nav -->
 
       <li class="nav-item">
         <a class="nav-link collapsed" href="#">
@@ -210,14 +186,6 @@ if(isset($_GET['student_update_id']))
 
 
   <main id="main" class="main">
-  <?php
-if ($student_update) {
-    echo '<div class="alert alert-danger alert-dismissible fade show" role="alert">
-    <strong>Student Exists !</strong> Card already assigned. Retry using a different Card.
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-  </div>';
-}
-?>
 
     <div class="pagetitle">
       <h1>Manage Studends</h1>
@@ -231,45 +199,46 @@ if ($student_update) {
     </div><!-- End Page Title -->
 
     <section class="section">
-      <div class="row">
+      <div class="row">  
         <div class="col-lg-12">
 
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title">Update Student</h5>
+              <h5 class="card-title">Attendance</h5>
+              <table class="table datatable">
+                <thead>
+                    <tr>
+                        <th scope="col">Student</th>
+                        <th scope="col">Subject</th>
+                        <th scope="col">Present</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php
+              
+                foreach ($subjects as $key => $value) 
+                {
+                    // echo "sub_id -> $value";
+                    $att_num = $conn->prepare("SELECT attendance.*,subject.sub_name FROM attendance JOIN subject ON attendance.sub_id = subject.sub_id WHERE attendance.sub_id = ? AND student_id = ?");
+                    $att_num->bind_param('is',$value,$student_id);
+                    $att_num->execute();
+                    $att_res = $att_num->get_result();
 
-              <!-- Update Students form -->
-              <form method="post">
-
-                <div class="form-group">
-                  <label for="student_id">Student Card UID:</label>
-                  <input type="text" class="form-control" id="student_id" aria-describedby="emailHelp" name="student_id" value="<?php echo $fetch_student_row['student_id']; ?>" required>
-                </div>
-                <div class="form-group my-3">
-                  <label for="student_name">Student Name:</label>
-                  <input type="text" class="form-control" id="student_name" aria-describedby="emailHelp" placeholder="Enter Student name" name="student_name" value="<?php echo $fetch_student_row['student_name']; ?>"required>
-                </div>
-                
-                <!-- Dropdown for Class Prepopulated -->
-                <div class="form-group my-3">
-                  <label for="class_id">Select Class:</label>
-                  <select class="form-control" id="class_id" name="class_id" required>
-                      <?php
-                        while ($fetch_class_row = $fetch_classes_res->fetch_assoc()) {
-                            $class_id = $fetch_class_row['class_id'];
-                            $class_name = $fetch_class_row['class_name'];
-
-                            $selected = ($class_id == $fetch_student_row['class_id']) ? 'selected' : '';
-
-                            echo "<option value='$class_id' $selected>$class_name</option>";
-                        }
+                    $att_row = $att_res->num_rows;
+                    // echo"- -";
+                    // echo "Attended - ";
+                    // echo $att_row;
+                    // echo"<br>";
+                    echo "<tr>
+                            <td>".$student_name."</td>
+                            <td>".$value."</td>
+                            <td>".$att_row."</td>
+                          </tr>";
+                }
                     ?>
-                  </select>
-                </div>
-                <div class="form-group my-2">
-                    <button type="submit" class="btn btn-primary" name="update_Student_btn">Update</button>
-                </div>
-              </form>
+
+                </tbody>
+              </table>
             </div>
           </div>
 

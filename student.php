@@ -69,7 +69,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>Components / Accordion - NiceAdmin Bootstrap Template</title>
+  <title>Student Attendance</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
 
@@ -193,6 +193,13 @@
       </li><!-- End F.A.Q Page Nav -->
 
       <li class="nav-item">
+        <a class="nav-link collapsed" href="subject.php">
+          <i class="bi bi-question-circle"></i>
+          <span>Subject</span>
+        </a>
+      </li><!-- End Subject Page Nav -->
+
+      <li class="nav-item">
         <a class="nav-link collapsed" href="student.php">
           <i class="bi bi-envelope"></i>
           <span>Student</span>
@@ -207,7 +214,7 @@
       </li><!-- End Register Page Nav -->
 
       <li class="nav-item">
-        <a class="nav-link collapsed" href="attendance.php">
+        <a class="nav-link collapsed" href="#">
           <i class="bi bi-box-arrow-in-right"></i>
           <span>Attendance</span>
         </a>
@@ -261,8 +268,9 @@ if ($card_exist) {
                 
                 <!-- Dropdown for Class Prepopulated -->
                 <div class="form-group my-3">
-                  <label for="class_id">Select Class:</label>
+                  <label for="class_id">Class:</label>
                   <select class="form-control" id="class_id" name="class_id" required>
+                    <option disabled selected>--Select Class--</option>
                       <?php
                         while($fetch_class_row = $fetch_class_res->fetch_assoc())
                         {
@@ -298,17 +306,17 @@ if ($card_exist) {
                 <?php
                     while($fetch_student_row  = $fetch_student_res->fetch_assoc())
                     {
+
                         echo "<tr>
                                 <td>".$fetch_student_row['student_name']."</td>
                                 <td>".$fetch_student_row['student_id']."</td>
                                 <td>".$fetch_student_row['class_name']."</td>
                                 <td>
                                     <button class='btn btn-primary'><a href='student_update.php?student_update_id=".$fetch_student_row['id']."' class='text-light'>Update</a></button>
-
                                     <button class='btn btn-danger'><a onClick=\" javascript:return confirm('Are You Sure to delete this'); \" href='student_delete.php?student_delete_id=".$fetch_student_row['id']."' class='text-light'>Delete</a></button>
+                                    <button class='btn btn-dark'><a href='attendance.php?student_id=".$fetch_student_row['student_id']."&student_name=".$fetch_student_row['student_name']."&class_id=".$fetch_student_row['class_id']."&class_name=".$fetch_student_row['class_name']."' class='text-light'>Attendance</a></button>
                                 </td>
                               </tr>";
-                        // echo $fetch_class_row['class_name'];
                     }
                     ?>
 

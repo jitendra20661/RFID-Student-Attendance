@@ -37,7 +37,7 @@ $fetch_class_res = $fetch_class->get_result();
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>Components / Accordion - NiceAdmin Bootstrap Template</title>
+  <title>Student Attendance</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
 
@@ -159,7 +159,14 @@ $fetch_class_res = $fetch_class->get_result();
           <i class="bi bi-question-circle"></i>
           <span>Class</span>
         </a>
-      </li><!-- End F.A.Q Page Nav -->
+      </li><!-- End Class Nav -->
+
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="subject.php">
+          <i class="bi bi-question-circle"></i>
+          <span>Subject</span>
+        </a>
+      </li><!-- End Subject Page Nav -->
 
       <li class="nav-item">
         <a class="nav-link collapsed" href="student.php">
@@ -176,7 +183,7 @@ $fetch_class_res = $fetch_class->get_result();
       </li><!-- End Register Page Nav -->
 
       <li class="nav-item">
-        <a class="nav-link collapsed" href="attendance.php">
+        <a class="nav-link collapsed" href="#">
           <i class="bi bi-box-arrow-in-right"></i>
           <span>Attendance</span>
         </a>
